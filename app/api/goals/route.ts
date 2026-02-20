@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { v4 as uuidv4 } from 'uuid';
 import fs from 'fs/promises';
 import path from 'path';
+import os from 'os';
 
 interface Goal {
   id: string;
@@ -12,14 +13,30 @@ interface Goal {
   createdAt: string;
 }
 
-const goalsFile = path.join(process.cwd(), 'data', 'goals.json');
+// Use a writable directory - prefer project data dir, fallback to temp
+const getDataDir = () => {
+  if (process.env.DATA_DIR) {
+    return process.env.DATA_DIR;
+  }
+  
+  // In development, use project root
+  if (process.env.NODE_ENV !== 'production') {
+    return path.join(process.cwd(), 'data');
+  }
+  
+  // In production, use temp directory or system temp
+  return path.join(os.tmpdir(), 'lifecal-data');
+};
+
+const goalsFile = path.join(getDataDir(), 'goals.json');
 
 // Ensure data directory exists
 async function ensureDataDir() {
   try {
-    await fs.mkdir(path.dirname(goalsFile), { recursive: true });
+    const dataDir = getDataDir();
+    await fs.mkdir(dataDir, { recursive: true });
   } catch (error) {
-    // Directory might already exist
+    console.error('Failed to create data directory:', error);
   }
 }
 
