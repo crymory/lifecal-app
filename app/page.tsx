@@ -4,14 +4,22 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 export default function Home() {
+  const getDeadlineDate = () => {
+    const date = new Date();
+    date.setMonth(date.getMonth() + 4);
+    return { year: date.getFullYear(), month: date.getMonth() + 1, day: date.getDate() };
+  };
+
+  const deadlineDate = getDeadlineDate();
+
   const [formData, setFormData] = useState({
     name: '',
     startYear: new Date().getFullYear(),
     startMonth: new Date().getMonth() + 1,
     startDay: new Date().getDate(),
-    deadlineYear: new Date().getFullYear(),
-    deadlineMonth: new Date().getMonth() + 4,
-    deadlineDay: new Date().getDate(),
+    deadlineYear: deadlineDate.year,
+    deadlineMonth: deadlineDate.month,
+    deadlineDay: deadlineDate.day,
     iPhoneModel: 'iPhone 13 / 13 Pro / 14 / 14 Pro',
   });
 
@@ -58,7 +66,8 @@ export default function Home() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create goal');
+        const errorData = await response.json();
+        throw new Error(errorData.details || errorData.error || 'Failed to create goal');
       }
 
       const goal = await response.json();
