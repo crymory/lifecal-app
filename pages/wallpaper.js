@@ -24,6 +24,9 @@ export default function Wallpaper() {
 
     canvas.width = width;
     canvas.height = height;
+    canvas.style.width = '100%';
+    canvas.style.height = 'auto';
+    canvas.style.maxWidth = '400px';
 
     // Вычисляем дни
     const startDateObj = new Date(startDate);
@@ -90,21 +93,25 @@ export default function Wallpaper() {
       (width - tw) / 2 + ctx.measureText(leftText).width,
       statsY
     );
-
-    // Автоматически скачиваем
-    setTimeout(() => {
-      const link = document.createElement('a');
-      link.download = `${goal}.png`;
-      link.href = canvas.toDataURL('image/png');
-      link.click();
-    }, 500);
   }, []);
 
   return (
-    <div style={{ width: '100%', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#000' }}>
+    <div style={{
+      width: '100%',
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: '#000',
+      padding: '20px'
+    }}>
       <canvas
         ref={canvasRef}
-        style={{ maxWidth: '100%', maxHeight: '100%', display: 'block' }}
+        style={{
+          maxWidth: '100%',
+          maxHeight: '100vh',
+          display: 'block'
+        }}
       />
     </div>
   );
