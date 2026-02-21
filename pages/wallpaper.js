@@ -1,8 +1,5 @@
 import { useEffect, useRef } from 'react';
 
-const DEFAULT_ACTIVE_COLOR = '#FF6B4A';
-const INACTIVE_COLOR = '#555555';
-
 export default function Wallpaper() {
   const canvasRef = useRef(null);
 
@@ -13,8 +10,14 @@ export default function Wallpaper() {
     const goal = decodeURIComponent(params.get('goal') || 'Goal');
     const startDate = params.get('start_date') || '';
     const endDate = params.get('goal_date') || '';
-    const color = params.get('color') || DEFAULT_ACTIVE_COLOR;
+    const userColor = params.get('color') || '#FF6B4A';
     const res_str = params.get('res') || '1170x2532';
+
+    // Цвета
+    const BG_COLOR = '#1a1a1a';
+    const INACTIVE_COLOR = '#404040';
+    const ACTIVE_COLOR = '#ffffff';
+    const TEXT_COLOR = userColor;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -46,7 +49,7 @@ export default function Wallpaper() {
     const percent = Math.round((passedDays / totalDays) * 100);
 
     // Фон
-    ctx.fillStyle = '#000000';
+    ctx.fillStyle = BG_COLOR;
     ctx.fillRect(0, 0, width, height);
 
     // Точки
@@ -67,7 +70,7 @@ export default function Wallpaper() {
         0,
         Math.PI * 2
       );
-      ctx.fillStyle = i < passedDays ? color : INACTIVE_COLOR;
+      ctx.fillStyle = i < passedDays ? ACTIVE_COLOR : INACTIVE_COLOR;
       ctx.fill();
     }
 
@@ -85,7 +88,7 @@ export default function Wallpaper() {
     const tw =
       ctx.measureText(leftText).width + ctx.measureText(pText).width;
     ctx.textAlign = 'left';
-    ctx.fillStyle = color;
+    ctx.fillStyle = TEXT_COLOR;
     ctx.fillText(leftText, (width - tw) / 2, statsY);
     ctx.fillStyle = INACTIVE_COLOR;
     ctx.fillText(
@@ -102,7 +105,7 @@ export default function Wallpaper() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#000',
+      backgroundColor: '#0a0a0a',
       padding: '20px'
     }}>
       <canvas
