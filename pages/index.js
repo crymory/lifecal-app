@@ -12,35 +12,28 @@ export default function Home() {
   const [endInput, setEndInput] = useState('');
   const [modelSelect, setModelSelect] = useState('1170x2532');
   const [shareUrl, setShareUrl] = useState('');
-  const [params, setParams] = useState({});
+  const [directMode, setDirectMode] = useState(false);
 
-  // Инициализация дат
+  // Инициализация дат и парсинг URL параметров
   useEffect(() => {
     const today = new Date().toISOString().split('T')[0];
-    setStartInput(today);
-
     const nextMonth = new Date();
     nextMonth.setMonth(nextMonth.getMonth() + 2);
-    setEndInput(nextMonth.toISOString().split('T')[0]);
 
-    // Проверяем URL параметры
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
-      const urlParams = {
-        goal: searchParams.get('goal'),
-        start_date: searchParams.get('start_date'),
-        goal_date: searchParams.get('goal_date'),
-        color: searchParams.get('color'),
-        res: searchParams.get('res'),
-        direct: searchParams.get('direct'),
-      };
-      setParams(urlParams);
-
-      if (urlParams.goal) setGoalInput(urlParams.goal);
-      if (urlParams.start_date) setStartInput(urlParams.start_date);
-      if (urlParams.goal_date) setEndInput(urlParams.goal_date);
-      if (urlParams.color) setColorInput(urlParams.color);
-      if (urlParams.res) setModelSelect(urlParams.res);
+      const isDirect = searchParams.get('direct') === 'true';
+      
+      // Установим значения из URL или по умолчанию
+      setGoalInput(searchParams.get('goal') || 'No sugar');
+      setStartInput(searchParams.get('start_date') || today);
+      setEndInput(searchParams.get('goal_date') || nextMonth.toISOString().split('T')[0]);
+      setColorInput(searchParams.get('color') || DEFAULT_ACTIVE_COLOR);
+      setModelSelect(searchParams.get('res') || '1170x2532');
+      setDirectMode(isDirect);
+    } else {
+      setStartInput(today);
+      setEndInput(nextMonth.toISOString().split('T')[0]);
     }
   }, []);
 
@@ -135,19 +128,33 @@ export default function Home() {
       color
     )}&direct=true`;
     setShareUrl(finalUrl);
-
-    // Если прямой режим, скачиваем изображение
-    if (params.direct === 'true' && typeof window !== 'undefined') {
-      setTimeout(() => {
-        window.location.href = canvas.toDataURL('image/png');
-      }, 100);
-    }
   };
 
   // Обновляем при изменении значений
   useEffect(() => {
     drawWallpaper();
   }, [goalInput, startInput, endInput, colorInput, modelSelect]);
+
+  // Если direct mode, скачиваем после отрисовки
+  useEffect(() => {
+    if (directMode && canvasRef.current) {
+      // Даём время на отрисовку
+      const timer = setTimeout(() => {
+        const link = document.createElement('a');
+        link.download = 'goal.png';
+        link.href = canvasRef.current.toDataURL();
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // После скачивания перенаправляем на главную страницу
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 500);
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [directMode]);
 
   const copyUrl = () => {
     navigator.clipboard.writeText(shareUrl);
