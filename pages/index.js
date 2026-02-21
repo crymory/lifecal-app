@@ -165,42 +165,9 @@ export default function Home() {
     <>
       <Head>
         <title>Goal Dots Wallpaper Generator</title>
-        <meta charset="UTF-8" />
+        <meta charSet="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </Head>
-
-      <style jsx global>{`
-        html {
-          height: 100%;
-          background-color: black;
-        }
-        body {
-          height: 100%;
-          background-color: black;
-          color: white;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
-            Helvetica, Arial, sans-serif;
-        }
-        input,
-        select {
-          background-color: #1c1c1e !important;
-          border: 1px solid #3a3a3c !important;
-          color: white !important;
-        }
-        input[type='color'] {
-          -webkit-appearance: none;
-          border: none !important;
-          padding: 0;
-          background: none !important;
-        }
-        input[type='color']::-webkit-color-swatch-wrapper {
-          padding: 0;
-        }
-        input[type='color']::-webkit-color-swatch {
-          border: none;
-          border-radius: 8px;
-        }
-      `}</style>
 
       <div className="min-h-full p-6 md:p-12 lg:flex lg:gap-12 max-w-7xl mx-auto">
         <div className="lg:w-1/2 space-y-8">
