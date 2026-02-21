@@ -1,9 +1,7 @@
 "use client";
 
-import React, { useRef, useState, useCallback, useMemo } from "react";
-import { format } from "date-fns";
-import { toPng } from "html-to-image";
-import { Download, Calendar, Target } from "lucide-react";
+import React, { useRef, useState, useMemo } from "react";
+import { Calendar, Target } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,9 +17,9 @@ import WallpaperPreview from "@/components/WallpaperPreview";
 import InstallDrawer from "@/components/InstallDrawer";
 
 export default function HomePage() {
-  const [goalName, setGoalName] = useState("Learn Japanese");
-  const [startDate, setStartDate] = useState("2026-01-01");
-  const [endDate, setEndDate] = useState("2026-12-31");
+  const [goalName, setGoalName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [modelId, setModelId] = useState("iphone-16-pro-max");
 
   const previewRef = useRef<HTMLDivElement>(null);
@@ -45,6 +43,7 @@ export default function HomePage() {
   // API URL
   const apiUrl = useMemo(() => {
     if (typeof window === "undefined") return "";
+    if (!goalName || !startDate || !endDate) return "";
     const base = window.location.origin;
     const params = new URLSearchParams({
       goal: goalName,
@@ -54,52 +53,6 @@ export default function HomePage() {
     });
     return `${base}/api/wallpaper?${params.toString()}`;
   }, [goalName, startDate, endDate, modelId]);
-
-  const handleDownload = useCallback(async () => {
-    if (!previewRef.current) return;
-
-    // Create an offscreen container with the actual phone resolution
-    const offscreen = document.createElement("div");
-    offscreen.style.position = "fixed";
-    offscreen.style.left = "-9999px";
-    offscreen.style.top = "0";
-    document.body.appendChild(offscreen);
-
-    // Render a full-res version
-    const { createRoot } = await import("react-dom/client");
-    const root = createRoot(offscreen);
-
-    await new Promise<void>((resolve) => {
-      root.render(
-        <WallpaperPreview
-          goalName={goalName}
-          progress={progress}
-          width={model.width}
-          height={model.height}
-        />
-      );
-      // Wait for render
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => resolve());
-      });
-    });
-
-    try {
-      const dataUrl = await toPng(offscreen.children[0] as HTMLElement, {
-        pixelRatio: 1, // Already full resolution
-        width: model.width,
-        height: model.height,
-      });
-
-      const link = document.createElement("a");
-      link.download = `lifecal-${goalName.toLowerCase().replace(/\s+/g, "-")}.png`;
-      link.href = dataUrl;
-      link.click();
-    } finally {
-      root.unmount();
-      document.body.removeChild(offscreen);
-    }
-  }, [goalName, progress, model]);
 
   return (
     <main className="min-h-screen bg-[#0A0A0D] text-white">
@@ -219,19 +172,8 @@ export default function HomePage() {
               </div>
             )}
 
-            {/* Action buttons */}
-            <div className="flex gap-3">
-              <Button
-                onClick={handleDownload}
-                className="flex-1 h-11 bg-[#FF5F2E] hover:bg-[#FF5F2E]/90 text-white font-medium gap-2 transition-all"
-              >
-                <Download className="h-4 w-4" />
-                Download PNG
-              </Button>
-              <div className="flex-1">
-                <InstallDrawer apiUrl={apiUrl} />
-              </div>
-            </div>
+            {/* Action button */}
+            <InstallDrawer apiUrl={apiUrl} />
           </div>
 
           {/* Right: Preview */}
