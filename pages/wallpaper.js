@@ -62,29 +62,33 @@ export default function Wallpaper() {
     const startY = (height - gridHeight) / 2;
 
     for (let i = 0; i < totalDays; i++) {
+      const x = startX + ((i % cols) * spacing);
+      const y = startY + (Math.floor(i / cols) * spacing);
+      
       ctx.beginPath();
-      ctx.arc(
-        startX + ((i % cols) * spacing),
-        startY + (Math.floor(i / cols) * spacing),
-        radius,
-        0,
-        Math.PI * 2
-      );
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
       ctx.fillStyle = i < passedDays ? ACTIVE_COLOR : INACTIVE_COLOR;
       ctx.fill();
+      
+      // Подсветить активный день (сегодня)
+      if (i === passedDays - 1) {
+        ctx.strokeStyle = TEXT_COLOR;
+        ctx.lineWidth = radius * 0.8;
+        ctx.stroke();
+      }
     }
 
     // Название
     ctx.textAlign = 'center';
     ctx.fillStyle = INACTIVE_COLOR;
-    ctx.font = `400 ${width * 0.045}px -apple-system, sans-serif`;
+    ctx.font = `500 ${width * 0.055}px -apple-system, SF Pro Display, sans-serif`;
     ctx.fillText(goal, width / 2, startY - spacing * 1.5);
 
     // Статистика
     const statsY = startY + gridHeight + spacing * 1.5;
     const leftText = `${daysLeft}d left`;
     const pText = ` · ${percent}%`;
-    ctx.font = `600 ${width * 0.04}px -apple-system, sans-serif`;
+    ctx.font = `700 ${width * 0.048}px -apple-system, SF Pro Display, sans-serif`;
     const tw =
       ctx.measureText(leftText).width + ctx.measureText(pText).width;
     ctx.textAlign = 'left';
