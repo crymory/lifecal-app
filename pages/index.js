@@ -17,7 +17,6 @@ export default function Home() {
   const [endDay, setEndDay] = useState('21');
   const [modelSelect, setModelSelect] = useState('1170x2532');
   const [shareUrl, setShareUrl] = useState('');
-  const [directMode, setDirectMode] = useState(false);
   const [copied, setCopied] = useState(false);
 
   // Инициализация дат и парсинг URL параметров
@@ -27,7 +26,6 @@ export default function Home() {
 
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
-      const isDirect = searchParams.get('direct') === 'true';
 
       setGoalInput(searchParams.get('goal') || 'No sugar');
       setStartYear(searchParams.get('start_date')?.split('-')[0] || y);
@@ -38,7 +36,6 @@ export default function Home() {
       setEndDay(searchParams.get('goal_date')?.split('-')[2] || d);
       setColorInput(searchParams.get('color') || DEFAULT_ACTIVE_COLOR);
       setModelSelect(searchParams.get('res') || '1170x2532');
-      setDirectMode(isDirect);
     }
   }, []);
 
@@ -124,11 +121,11 @@ export default function Home() {
     // Генерирование ссылки
     const finalUrl = `${
       typeof window !== 'undefined' ? window.location.origin : ''
-    }${typeof window !== 'undefined' ? window.location.pathname : ''}?goal=${encodeURIComponent(
+    }/wallpaper?goal=${encodeURIComponent(
       goalInput
     )}&start_date=${startDate}&goal_date=${endDate}&res=${modelSelect}&color=${encodeURIComponent(
       colorInput
-    )}&direct=true`;
+    )}`;
     setShareUrl(finalUrl);
   };
 
@@ -136,25 +133,6 @@ export default function Home() {
   useEffect(() => {
     drawWallpaper();
   }, [goalInput, startDate, endDate, colorInput, modelSelect]);
-
-  // Если direct mode, скачиваем после отрисовки
-  useEffect(() => {
-    if (directMode && canvasRef.current) {
-      const timer = setTimeout(() => {
-        const link = document.createElement('a');
-        link.download = 'goal.png';
-        link.href = canvasRef.current.toDataURL();
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 500);
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-  }, [directMode]);
 
   const copyUrl = async () => {
     await navigator.clipboard.writeText(shareUrl);
@@ -414,15 +392,10 @@ export default function Home() {
                 Reset
               </button>
               <button
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.download = 'goal.png';
-                  link.href = canvasRef.current.toDataURL();
-                  link.click();
-                }}
+                onClick={() => window.open(shareUrl, '_blank')}
                 className="flex-1 h-12 rounded-lg bg-white text-black font-medium hover:bg-white/90 transition-colors"
               >
-                Download
+                View Wallpaper
               </button>
             </div>
           </div>
